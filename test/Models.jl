@@ -2,8 +2,8 @@
 
 	@testset "grid-tests for all models" begin
 		# Setup to test all models in a loop.
-		models = [langmuir_model,accumulation_model,langmuir_inv_const_model,accumulation_inv_const_model]
-		names = ["langmuir_model","accumulation_model","langmuir_inv_const_model","accumulation_inv_const_model"]
+		models = [langmuir_model,accumulation_model]
+		names = ["langmuir_model","accumulation_model"]
 
 		for (model,name) in zip(models,names)
 			@testset "grid-tests" begin
@@ -52,23 +52,6 @@
 			end
 		end
 
-		@testset "langmuir_inv_const_model" begin
-			model_1, λ_1 = langmuir_inv_const_model(create_grid([1,2,3]))
-
-			# Function values given by ∑_i λ_i* ( 1+1/(a*(r_i-l_i)) * log((a*l_i + 1) / (a*r_i +1)) ).
-			for a in 1:5
-				@test model_1.model(a,λ_1) == (1+1/a * log((a*1 + 1)/(a*2 + 1))) + (1+1/a * log((a*2 + 1)/(a*3 + 1)))
-			end
-		end
-
-		@testset "langmuir_inv_const_model" begin
-			model_1, λ_1 = accumulation_inv_const_model(create_grid([1,2,3]))
-
-			# Function values given by ∑_i λ_i* ( 1+1/(a*(r_i-l_i)) * (exp(-a*r-i) - exp(-a*l_i)) ).
-			for a in 1:5
-				@test model_1.model(a,λ_1) == (1+1/a * (exp(-a*2) - exp(-a*1))) + (1+1/a * (exp(-a*3) - exp(-a*2)))
-			end
-		end
 	end
 
 

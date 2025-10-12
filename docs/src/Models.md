@@ -85,16 +85,9 @@ Finally, the analytical solution of ``\int_{I_j}(1-e^{-\frac{a}{k}})\ dk`` requi
 !!! info "Weights of the grid"
 	The weights of `OneDimGrid` objects are always treated as ``\lambda_j`` for the analysis of dose-response data. Thus, the weights describe the number of epitopes with ``K_\tau`` in the given interval, not the ``K_\tau``-density value!
 
-!!! remark "Inverse constant"
-	To solve the integrals analytically, the inverse constant ``\widetilde{K} = \frac{1}{K_\tau}`` can be used: 
-	```math
-	\int (1-e^{-a\cdot \widetilde{k}}) \ d \widetilde{k} = \frac{e^{-a\cdot \widetilde{k}}}{a} + \widetilde{k} + \text{constant}\ .
-	```
-	While the use of the inverse constant does not change the discrete superposition (countable sum), the integral approximation uses a different  density ``\widetilde{g}`` if the inverse constant is used.
-
 ## Obtain model functions
 
-Having specified the intervals with a `grid`, the model function can be obtained with the following model generators: [`accumulation_model`](@ref), [`langmuir_model`](@ref), [`accumulation_inv_const_model`](@ref) and [`langmuir_inv_const_model`](@ref).
+Having specified the intervals with a `grid`, the model function can be obtained with [`accumulation_model`](@ref) or [`langmuir_model`](@ref) as model generator.
 
 ```@example Models
 model, init_params, centers, volumes = accumulation_model(grid, offset = 10) 

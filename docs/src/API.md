@@ -41,14 +41,6 @@ accumulation_model
 langmuir_model
 ```
 
-```@docs
-accumulation_inv_const_model 
-```
-
-```@docs
-langmuir_inv_const_model
-```
-
 
 ## Result type
 
