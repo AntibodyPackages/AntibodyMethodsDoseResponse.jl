@@ -138,7 +138,7 @@ Estimate the dose-response uncertainty from an [`EpitopeUncertainty`](@ref) obje
 The following keywords are available:
 
 * `bins = [collect(1:length(grid))]`: The response bounds are calculated as point-wise minima/maxima of responses created from the grid weights, where one bin at a time is replaced with the [`EpitopeUncertainty`](@ref) lower and upper bound, while keeping the other weights fixed. For the minima/maxima all response values, iterating over all bins, are considered. Ideally, the bins should correspond to the bins that were used to construct the [`EpitopeUncertainty`](@ref) object `eu`.
-* `model::Function = accumulation_model`: The model that is used to calculate the response values. The available model functions are [`accumulation_model`](@ref) and [`langmuir_model`](@ref).
+* `model::Function = accumulation_model`: The model that is used to calculate the response values. The predefined model functions are [`accumulation_model`](@ref) and [`langmuir_model`](@ref).
 
 There is no `offset` keyword, as the offsets are determined by the [`EpitopeUncertainty`](@ref) object.
 """

@@ -229,7 +229,7 @@ Data type to store dose-response result data (e.g. from a dose-response-curve fi
 
 Calculate a dose-response curve from a K_τ `grid` and a `model` for given `concentrations`. The `offset` value is a global additive shift for all response values.
 
-The available model functions are [`accumulation_model`](@ref) and [`langmuir_model`](@ref).
+The predefined model functions are [`accumulation_model`](@ref) and [`langmuir_model`](@ref).
 """
 struct DoseResponseResult
 	concentrations

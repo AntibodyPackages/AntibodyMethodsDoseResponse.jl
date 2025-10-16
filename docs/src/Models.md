@@ -74,7 +74,7 @@ g_j = \frac{\lambda_j}{\text{length}(I_j)}
 
 In other words, while ``g_j`` is the density value, ``\lambda_j`` is the number of epitopes with ``K_\tau\in I_j``.
 
-Finally, the analytical solution of ``\int_{I_j}(1-e^{-\frac{a}{k}})\ dk`` requires the *exponential integral* function, not implemented in Julia Base. To avoid additional dependencies, this integral is approximated by
+Finally, the analytical solution of ``\int_{I_j}(1-e^{-\frac{a}{k}})\ dk`` requires the *exponential integral* function, not implemented in Julia Base (see [Additional models and exact integrals](@ref additional_models) to implement exact integrals). To avoid additional dependencies, this integral is approximated by
 ```math
 \int_{I_j}(1-e^{-\frac{a}{k}})\ dk \approx \text{length}(I_j) \cdot (1-e^{-\frac{a}{\text{center}(I_j)}})
 ```
@@ -87,7 +87,7 @@ Finally, the analytical solution of ``\int_{I_j}(1-e^{-\frac{a}{k}})\ dk`` requi
 
 ## Obtain model functions
 
-Having specified the intervals with a `grid`, the model function can be obtained with [`accumulation_model`](@ref) or [`langmuir_model`](@ref) as model generator.
+Having specified the intervals with a `grid`, the model function can be obtained with the predefined functions [`accumulation_model`](@ref) or [`langmuir_model`](@ref) as model generator. Alternatively, custom model functions can be used if they follow the structure of the predefined model functions (see [Additional models and exact integrals](@ref additional_models)).
 
 ```@example Models
 model, init_params, centers, volumes = accumulation_model(grid, offset = 10) 
@@ -113,6 +113,32 @@ and `volumes` contains the lengths of the intervals of the grid:
 ```@example Models
 println(volumes)
 ```
+
+## [Additional models and exact integrals](@id additional_models)
+
+Additional model functions, e.g. to use analytical solutions of the integral ``\int_{I_j}(1-e^{-\frac{a}{k}})\ dk``, can be used instead of the predefined model functions [`accumulation_model`](@ref) and [`langmuir_model`](@ref). Custom model functions can be defined by
+
+```julia
+function custom_model(grid::AdaptiveDensityApproximation.OneDimGrid ; offset::Union{Nothing,R} = nothing) where R <: Real
+	centers, volumes, parameters = export_all(grid)
+
+	model =  @inline function(a,λ)
+		# Custom model function
+	end
+
+	∂model = Function[]
+	for i in eachindex(centers)
+		∂ = @inline function(a,λ)
+			# Custom partial derivatives (w.r.t. λ[i])
+		end
+		push!(∂model,∂)
+	end
+
+	return AntibodyMethodsDoseResponse.generate_model(model,∂model,centers,volumes, parameters,offset)
+end
+```
+
+After the definition, the `custom_model` can be used as argument whenever [`accumulation_model`](@ref) or [`langmuir_model`](@ref) are valid arguments (e.g. in [`DoseResponseResult`](@ref)).
 
 
 ## Tips for girds

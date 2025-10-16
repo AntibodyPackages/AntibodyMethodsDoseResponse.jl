@@ -85,7 +85,7 @@ The following keywords (with default values) are available:
 * `name::AbstractString = "Adaptive optimization"`: The name that is used when `show_progress==true`.
 * `show_progress::Bool = true`: Show progress in standard output.
 * `iterations::Integer = 1`: Number of refinement iterations.
-* `model::Function = accumulation_model`: The model-function that is used for the data-fit. The available model functions are [`accumulation_model`](@ref) and [`langmuir_model`](@ref).
+* `model::Function = accumulation_model`: The model-function that is used for the data-fit. The predefined model functions are [`accumulation_model`](@ref) and [`langmuir_model`](@ref).
 * `offset = nothing`: Offset parameter for the model function. If `nothing`, no offset is used.
 * `objective::Symbol = :lsq`. The objective function for the data-fit. Available are `:lsq`, `:posterior` and `:log_posterior`.
 * `prior_generator::Function = default_prior_generator`: The function that generates the prior. The function must have the signature `(grid_centers,grid_volumes,offset)` and must return a function `λ-> prior(λ)` or `λ-> log_prior(λ)` in case of a `:log_posterior` objective. The `default_prior_generator` generates a uniform prior `λ-> 0` for the log-posterior objective.
