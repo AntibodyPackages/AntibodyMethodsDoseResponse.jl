@@ -91,7 +91,7 @@ The following keywords (with default values) are available:
 * `prior_generator::Function = default_prior_generator`: The function that generates the prior. The function must have the signature `(grid_centers,grid_volumes,offset)` and must return a function `λ-> prior(λ)` or `λ-> log_prior(λ)` in case of a `:log_posterior` objective. The `default_prior_generator` generates a uniform prior `λ-> 0` for the log-posterior objective.
 * `distribution_derivatives = nothing`: Array of partial derivatives of the logarithmic distributions for the log-posterior objective. See [`log_posterior_gradient`](https://antibodypackages.github.io/FittingObjectiveFunctions-documentation/API/#FittingObjectiveFunctions.log_posterior_gradient).
 * `prior_gradient_generator = default_prior_gradient_generator`: The function that generates the log-prior gradient (see  [`log_posterior_gradient`](https://antibodypackages.github.io/FittingObjectiveFunctions-documentation/API/#FittingObjectiveFunctions.log_posterior_gradient)). The function must have the signature `(grid_centers,grid_volumes,offset)` and must return a function `λ-> ∇log_prior(λ)`. The `default_prior_gradient_generator` returns `nothing` which internally corresponds to the uniform prior for the log-posterior objective.
-* `block_variation::Function =` [`log_area_scaled_variation`](@ref) and `selection::Function = maximum` are the refinement options of [`refine!`](https://antibodypackages.github.io/AdaptiveDensityApproximation-documentation/api/#AdaptiveDensityApproximation.refine!).
+* `block_variation::Function =` [`log_area_scaled_variation`](@ref), `selection::Function = maximum`, `logarithmic::Bool = false` and `base = 10.0` are the refinement options of [`refine!`](https://antibodypackages.github.io/AdaptiveDensityApproximation-documentation/api/#AdaptiveDensityApproximation.refine!).
 """
 mutable struct AdaptiveOptions
 	name::AbstractString
@@ -105,6 +105,8 @@ mutable struct AdaptiveOptions
 	prior_gradient_generator
 	block_variation::Function
 	selection::Function
+	logarithmic::Bool
+	base
 
 	function AdaptiveOptions(; 
 		name="Adaptive optimization", 
@@ -117,7 +119,9 @@ mutable struct AdaptiveOptions
 		distribution_derivatives=nothing, 
 		prior_gradient_generator = default_prior_gradient_generator, 
 		block_variation = log_area_scaled_variation, 
-		selection = maximum)
+		selection = maximum,
+		logarithmic = false,
+		base = 10)
 
 		return new(name, 
 			show_progress,
@@ -129,7 +133,9 @@ mutable struct AdaptiveOptions
 			distribution_derivatives,
 			prior_gradient_generator, 
 			block_variation, 
-			selection)
+			selection,
+			logarithmic,
+			base)
 	end
 end
 
@@ -275,7 +281,7 @@ function adaptive_dose_response_fit(initial_grid::AdaptiveDensityApproximation.O
 		grid, dr_result, parameters = apply_result!(grid,data,parameters,options)
 
 		if i < options.iterations
-			refine!(grid,block_variation = options.block_variation, selection = options.selection, split_weights = true)
+			refine!(grid,block_variation = options.block_variation, selection = options.selection, split_weights = true, logarithmic = options.logarithmic, base = options.base)
 		end
 		
 		if options.show_progress

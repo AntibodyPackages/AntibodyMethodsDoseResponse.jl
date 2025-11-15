@@ -16,6 +16,8 @@
 		@test default_options.prior_gradient_generator == AntibodyMethodsDoseResponse.default_prior_gradient_generator
 		@test default_options.block_variation == log_area_scaled_variation
 		@test default_options.selection == maximum
+		@test default_options.logarithmic == false
+		@test default_options.base == 10.0
 
 
 		# Test keyword matching.
@@ -30,7 +32,9 @@
 			distribution_derivatives = "a", # not sensible, only for testing.
 			prior_gradient_generator = "b", # not sensible, only for testing.
 			block_variation = area_scaled_variation,
-			selection = minimum
+			selection = minimum, 
+			logarithmic = true,
+			base = exp(1)
 		)
 
 		@test custom_options.name == "name"
@@ -44,6 +48,8 @@
 		@test custom_options.prior_gradient_generator == "b"
 		@test custom_options.block_variation == area_scaled_variation
 		@test custom_options.selection == minimum
+		@test custom_options.logarithmic == true
+		@test custom_options.base ≈ exp(1)
 
 	end
 
@@ -368,7 +374,7 @@
 			# Again, use previously tested get_objective to get the objective function.
 			objective = DR.get_objective(result.grid,data,1,AdaptiveOptions(objective = :log_posterior,prior_generator = test_prior_generator))[1]
 
-			# As before returned objective value should match the result of applying the objective to the returned optimizer.
+			# As before, returned objective value should match the result of applying the objective to the returned optimizer.
 			@test objective(result.optimizer) == result.objective_value
 		end
 
@@ -403,14 +409,28 @@
 
 
 		@testset "Refine options" begin
-			# Test refine options (block_variation and selection) by checking if errors are thrown.
-			error_variation(args...) = log(-1) # Should throw DomainError
-			error_selection(variations) = Int64(0.3) # Should throw InexactError
 
-			# block_variation is used (DomainError).
-			@test_throws DomainError adaptive_dose_response_fit(grid,data,minimizer, options = AdaptiveOptions(iterations = 2, block_variation = error_variation))
-			# selection is used (InexactError).
-			@test_throws InexactError adaptive_dose_response_fit(grid,data,minimizer, options = AdaptiveOptions(iterations = 2, selection = error_selection))
+
+			test_grid = create_grid([1,2,3,4])
+			import_weights!(test_grid, [1,2,3])
+			test_variation = (center, volume, weight, neighbor_centers, neighbor_volumes, neighbor_weights) -> weight
+
+			# Linear splitting.
+			options = AdaptiveOptions(iterations = 2, block_variation = test_variation, selection = minimum)
+			result_grid = adaptive_dose_response_fit(test_grid,FittingData([1,2],[1,2]),(f,∇f,λ)->λ, options = options).grid
+			centers, volumes, weights = export_all(result_grid)
+			@test centers ≈ [1.25,1.75,2.5,3.5]
+			# weight = 1, original volume = 1, splitting = 1 * new_volume / initial volume = new_volume.
+			@test weights ≈ [0.5,0.5,2,3]
+
+			# Logarithmic splitting.
+			options = AdaptiveOptions(iterations = 2, block_variation = test_variation, selection = minimum, logarithmic = true, base = exp(1))
+			result_grid = adaptive_dose_response_fit(test_grid,FittingData([1,2],[1,2]),(f,∇f,λ)->λ, options = options).grid
+			centers, volumes, weights = export_all(result_grid)
+			log_center = exp((log(1)+log(2))/2)
+			@test centers ≈ [(1+log_center)/2,(2+log_center)/2,2.5,3.5]
+			# weight = 1, original volume = 1, splitting = 1 * new_volume / initial volume = new_volume.
+			@test weights ≈ [log_center-1,2-log_center,2,3]
 		end
 
 
