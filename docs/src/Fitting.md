@@ -27,7 +27,7 @@ scatter(concentrations,responses, yerror = errors, xaxis = :log, legend = :none)
 
 ## Simple model fitting
  
- The data needs to be summarized in a [`FittingData`](https://antibodypackages.github.io/FittingObjectiveFunctions-documentation/API/#FittingObjectiveFunctions.FittingData) object, as described in [Models](@ref binding_models):
+ The data needs to be summarized in a [`FittingData`](https://antibodypackages.github.io/FittingObjectiveFunctions-documentation/API/#FittingObjectiveFunctions.FittingData) object:
 
 ```@example Fitting
 data = FittingData(concentrations, responses, errors)
@@ -38,7 +38,7 @@ Next, a `OneDimGrid` needs to be created, ideally covering the concentration ran
 grid = create_grid(LogRange(1e-10,1e-2,40))
 ```
 
-Finally, a function minimizer needs to be implemented. For this, we use [`Optim.jl`](https://julianlsolvers.github.io/Optim.jl/stable/), here:
+Finally, a function minimizer needs to be implemented. For this, we can use [`Optim.jl`](https://julianlsolvers.github.io/Optim.jl/stable/):
 
 ```@example Fitting
 function minimizer(f,∇f,init)
@@ -54,7 +54,7 @@ Now, a model can be fitted to the `data` with [`adaptive_dose_response_fit`](@re
 ```julia
 result = adaptive_dose_response_fit(grid,data,
 		minimizer, 
-		options = AdaptiveOptions(model = accumulation_model)
+		options = AdaptiveOptions(model = accumulation_model, objective = :lsq)
 	)
 ```
 ```@example Fitting

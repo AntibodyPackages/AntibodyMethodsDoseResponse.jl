@@ -65,7 +65,7 @@ nothing # hide
 	Constructing a [`FittingCondition`](@ref) object by passing the different replicate responses will default to the standard deviation of the data points for the measurement error. If only a single replicate is used, the replicates field will be empty (`nothing`) and the measurement errors are set to `±1`. Different errors can be used by constructing the [`FittingData`](https://antibodypackages.github.io/FittingObjectiveFunctions-documentation/API/#FittingObjectiveFunctions.FittingData) object manually:
 	```julia
 	errors = 0.1 .* responses
-	data = FittingData(concentrations,responses, errors)
+	data = FittingData(concentrations,responses, errors, distributions = (y,m,Δy)-> -(y-m)^2/Δy^2)
 	fitting_condition = FittingCondition(data, scale = 500, path = "path_to_store_results")
 	```
 

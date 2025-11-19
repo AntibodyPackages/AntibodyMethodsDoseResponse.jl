@@ -109,7 +109,7 @@ default_minimizer_1 = function(f,∇f,init)
 	return optimize(f,lower,upper, init, Fminbox(NelderMead()),Optim.Options(g_tol = 1e-12, iterations =2000)).minimizer
 end
 
-result = adaptive_dose_response_fit(grid, condition.data, default_minimizer_1)
+result = adaptive_dose_response_fit(grid, condition.data, default_minimizer_1, options = AdaptiveOptions(model = accumulation_model, objective = :lsq))
 
 mkpath("direct_fit")
 serialize("direct_fit/results.jld", result)
